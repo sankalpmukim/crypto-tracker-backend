@@ -8,22 +8,26 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(cuid())
-  email         String          @unique
+  id            String         @id @default(cuid())
+  email         String         @unique
   password      String
   name          String
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  SelectedCoins SelectedCoins[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  selectedCoins SelectedCoin[]
 }
 
-model SelectedCoins {
+model SelectedCoin {
   userId        String
   coinAssetType CoinAssetType
   user          User          @relation(fields: [userId], references: [id])
   createdAt     DateTime      @default(now())
 
   @@id([userId, coinAssetType])
+}
+
+model Coin {
+  coin CoinAssetType @id
 }
 
 enum CoinAssetType {
