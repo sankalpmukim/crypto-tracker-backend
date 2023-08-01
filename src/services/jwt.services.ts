@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import jwt from "jsonwebtoken";
 
 export const generateToken = (payload: any): string => {
@@ -8,7 +9,11 @@ export const generateToken = (payload: any): string => {
   return token;
 };
 
-export const verifyToken = (token: string): any => {
-  const payload = jwt.verify(token, process.env.JWT_SECRET as string);
+export const verifyToken = (
+  token: string
+): string | (jwt.JwtPayload & Omit<User, "password">) => {
+  const payload = jwt.verify(token, process.env.JWT_SECRET as string) as
+    | string
+    | (jwt.JwtPayload & Omit<User, "password">);
   return payload;
 };
