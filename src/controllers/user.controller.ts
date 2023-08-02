@@ -17,13 +17,13 @@ export const getAllUsers = async () => {
 
 export const getUserCoins = async (
   userId: string
-): Promise<(SelectedCoin & { lastPrice: number })[]> => {
+): Promise<(SelectedCoin & { lastPrice: number | null })[]> => {
   const userCoins = await prisma.selectedCoin.findMany({
     where: {
       userId,
     },
   });
-  const finalData: (SelectedCoin & { lastPrice: number })[] = [];
+  const finalData: (SelectedCoin & { lastPrice: number | null })[] = [];
   for (let i = 0; i < userCoins.length; i++) {
     const { coinAssetType } = userCoins[i];
     const data = await prisma.coinQuotesLogs.findFirst({
@@ -34,10 +34,15 @@ export const getUserCoins = async (
         createdAt: "desc",
       },
     });
-    if (!data) continue;
+    // if (!data) {
+    //   finalData.push({...userCoins[i]});}
+    // finalData.push({
+    //   ...userCoins[i],
+    //   lastPrice: data.price,
+    // });
     finalData.push({
       ...userCoins[i],
-      lastPrice: data.price,
+      lastPrice: !!data ? data.price : null,
     });
   }
   return finalData;
