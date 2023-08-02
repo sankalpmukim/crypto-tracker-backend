@@ -1,9 +1,9 @@
-import "./initializers/dotenv";
-import "./initializers/prisma";
+import "./initializers";
 import express from "express";
 import cors from "cors";
 import userRouter from "./routers/user.routers";
 import authRouter from "./routers/auth.routers";
+import coinsRouter from "./routers/coins.routers";
 import { authMiddleware } from "./middleware/auth.middleware";
 
 const app = express();
@@ -20,8 +20,10 @@ app.use(
 
 // setup routes
 app.use(`/auth`, authRouter);
+
 // require authentication for all routes defined after this
 app.use(`/users`, authMiddleware, userRouter);
+app.use(`/coins`, authMiddleware, coinsRouter);
 
 app.get(`/`, (req, res) => {
   res.json({ message: `Hello World` });
