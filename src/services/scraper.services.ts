@@ -1,6 +1,7 @@
 import { CoinAssetType } from "@prisma/client";
 import { getCurrentlySelectedCoins } from "../controllers/coins.controller";
 import fetch from "node-fetch";
+import queueClient from "./queue.services";
 
 const ASSET_TARGET = "USD" as const;
 
@@ -47,6 +48,8 @@ class CoinDataScraper {
             // add to db
             await CoinDataScraper.addToDb(coinData);
             // push to queue
+            // TODO: switch to batch publishing
+            queueClient.publishMessage(JSON.stringify(coinData));
           } catch (error) {
             console.log(error);
             throw error;
