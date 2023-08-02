@@ -46,6 +46,10 @@ model CoinQuotesLogs {
   createdAt DateTime      @default(now())
 }
 
+model LiveConfig {
+  shouldScrape Boolean @id @default(false)
+}
+
 enum CoinAssetType {
   BTC
   EUR

@@ -6,7 +6,7 @@ import { prisma } from "../initializers/prisma";
 
 const ASSET_TARGET = "USD" as const;
 // wait time for scraper polling
-const WAIT_INTERVAL = 150 * 1000;
+const WAIT_INTERVAL = 100 * 1000;
 
 interface CoinAPIData {
   time: string;
@@ -16,11 +16,9 @@ interface CoinAPIData {
   error?: string;
 }
 
-interface CoinAPIError {
-  error: string;
+async function shouldScrape(): Promise<boolean> {
+  return (await prisma.liveConfig.findFirst())?.shouldScrape ?? false;
 }
-
-type CoinAPIResponse = CoinAPIData | CoinAPIError;
 
 class CoinDataScraper {
   coins: CoinAssetType[] = [];
@@ -46,29 +44,14 @@ class CoinDataScraper {
         console.log("Already scraping");
         return;
       }
+
+      if (!(await shouldScrape())) {
+        console.log("Scraping is disabled");
+        return;
+      }
       // avoid multiple overlapping scrapes
       this.currentlyInScraping = true;
 
-      // make request(s) to coinapi api
-      // const data = await Promise.all(
-      //   this.coins.map(async (coin) => {
-      //     try {
-      //       // get quote
-      //       const coinData = await CoinDataScraper.getQuote(coin);
-      //       if (typeof coinData?.error !== "undefined")
-      //         throw new Error(coinData.error);
-      //       // add to db
-      //       await CoinDataScraper.addToDb(coinData);
-      //       // push to queue
-      //       // TODO: switch to batch publishing
-      //       queueClient.publishMessage(JSON.stringify(coinData));
-      //       return coinData;
-      //     } catch (error) {
-      //       console.log(error);
-      //       throw error;
-      //     }
-      //   })
-      // );
       const data = [];
       for (const coin of this.coins) {
         try {
