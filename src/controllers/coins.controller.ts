@@ -48,7 +48,7 @@ export const selectCoin = async ({
   return newSelectedCoin;
 };
 
-export const getUserCoins = async (
+export const getCoinUsers = async (
   coin: string
 ): Promise<(SelectedCoin & { user: { email: string } })[]> => {
   const userCoins = await prisma.selectedCoin.findMany({
