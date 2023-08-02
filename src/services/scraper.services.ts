@@ -85,4 +85,6 @@ class CoinDataScraper {
 }
 
 // singleton pattern
-export default new CoinDataScraper();
+export const coinDataScraper = new CoinDataScraper();
+
+export default CoinDataScraper;

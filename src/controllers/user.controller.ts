@@ -1,5 +1,6 @@
 import { CoinAssetType, PreferenceType, SelectedCoin } from "@prisma/client";
 import { prisma } from "../initializers/prisma";
+import { coinDataScraper } from "../services/scraper.services";
 
 export const getAllUsers = async () => {
   const users = await prisma.user.findMany({
@@ -64,5 +65,8 @@ export const setUserCoins = async ({
       selectedCoins: true,
     },
   });
+
+  await coinDataScraper.updateSelectedCoins();
+
   return updated;
 };

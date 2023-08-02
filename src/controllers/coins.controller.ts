@@ -6,6 +6,7 @@ import {
   PreferenceType,
 } from "@prisma/client";
 import { prisma } from "../initializers/prisma";
+import { coinDataScraper } from "../services/scraper.services";
 
 export const getCoins = async (): Promise<Coin[]> => {
   const coins = await prisma.coin.findMany();
@@ -22,7 +23,7 @@ export const getCurrentlySelectedCoins = async () => {
   return selectedCoins;
 };
 
-export const selectCoin = ({
+export const selectCoin = async ({
   userId,
   coin,
   preference,
@@ -33,7 +34,7 @@ export const selectCoin = ({
   preference: PreferenceType;
   price: number;
 }): Promise<SelectedCoin> => {
-  return prisma.selectedCoin.create({
+  const newSelectedCoin = await prisma.selectedCoin.create({
     data: {
       userId,
       coinAssetType: coin as CoinAssetType,
@@ -41,6 +42,10 @@ export const selectCoin = ({
       price,
     },
   });
+
+  await coinDataScraper.updateSelectedCoins();
+
+  return newSelectedCoin;
 };
 
 export const getUserCoins = async (
