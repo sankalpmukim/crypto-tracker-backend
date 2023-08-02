@@ -22,11 +22,17 @@ userRouter.get(`/coins`, async (req: Request, res: Response) => {
 
 // SET user coins
 userRouter.post(`/coins`, async (req: Request, res: Response) => {
-  if (!req.user) return res.status(401).json({ error: "Unauthorized" });
-  const { coins } = req.body;
-  if (!coins) return res.status(400).json({ error: "Missing coins" });
-  const userCoins = await setUserCoins({ userId: req.user.id, coins });
-  return res.status(200).json({ userCoins });
+  try {
+    if (!req.user) return res.status(401).json({ error: "Unauthorized" });
+    const { coins } = req.body;
+    if (!coins) return res.status(400).json({ error: "Missing coins" });
+    const userCoins = await setUserCoins({ userId: req.user.id, coins });
+    return res.status(200).json({ userCoins });
+  } catch (error) {
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : `Something went wrong :(`,
+    });
+  }
 });
 
 export default userRouter;

@@ -47,6 +47,7 @@ export const setUserCoins = async ({
           data: coins.map((coin) => ({
             coinAssetType: coin as CoinAssetType,
           })),
+          skipDuplicates: true,
         },
       },
     },
