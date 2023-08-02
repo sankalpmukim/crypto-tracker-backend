@@ -11,7 +11,6 @@ coinsRouter.get(`/`, async (req: Request, res: Response) => {
 
 // GET users for each type of coin
 coinsRouter.get(`/users`, async (req: Request, res: Response) => {
-  if (!req.user) return res.status(401).json({ error: "Unauthorized" });
   const { coin } = req.query;
   if (!coin || typeof coin !== "string") {
     return res.status(400).json({ error: "Missing coin" });

@@ -21,9 +21,9 @@ app.use(
 // setup routes
 app.use(`/auth`, authRouter);
 
+app.use(`/coins`, coinsRouter);
 // require authentication for all routes defined after this
 app.use(`/users`, authMiddleware, userRouter);
-app.use(`/coins`, authMiddleware, coinsRouter);
 
 app.get(`/`, (req, res) => {
   res.json({ message: `Hello World` });
