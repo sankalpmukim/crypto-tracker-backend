@@ -15,13 +15,32 @@ export const getAllUsers = async () => {
   return users;
 };
 
-export const getUserCoins = async (userId: string): Promise<SelectedCoin[]> => {
+export const getUserCoins = async (
+  userId: string
+): Promise<(SelectedCoin & { lastPrice: number })[]> => {
   const userCoins = await prisma.selectedCoin.findMany({
     where: {
       userId,
     },
   });
-  return userCoins;
+  const finalData: (SelectedCoin & { lastPrice: number })[] = [];
+  for (let i = 0; i < userCoins.length; i++) {
+    const { coinAssetType } = userCoins[i];
+    const data = await prisma.coinQuotesLogs.findFirst({
+      where: {
+        coinId: coinAssetType,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    if (!data) continue;
+    finalData.push({
+      ...userCoins[i],
+      lastPrice: data.price,
+    });
+  }
+  return finalData;
 };
 
 interface SelectCoinForUsersInput {
