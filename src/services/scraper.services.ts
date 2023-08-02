@@ -6,7 +6,7 @@ import { prisma } from "../initializers/prisma";
 
 const ASSET_TARGET = "USD" as const;
 // wait time for scraper polling
-const WAIT_INTERVAL = 30 * 1000;
+const WAIT_INTERVAL = 150 * 1000;
 
 interface CoinAPIData {
   time: string;
