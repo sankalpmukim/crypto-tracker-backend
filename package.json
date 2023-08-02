@@ -8,6 +8,7 @@
     "start": "node dist/src/index.js"
   },
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.382.0",
     "@prisma/client": "5.0.0",
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
