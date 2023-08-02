@@ -4,6 +4,7 @@ import {
   getUserCoins,
   setUserCoins,
 } from "../controllers/user.controller";
+import { coinDataScraper } from "../services/scraper.services";
 
 const userRouter = Router();
 
@@ -27,6 +28,7 @@ userRouter.post(`/coins`, async (req: Request, res: Response) => {
     const { coins } = req.body;
     if (!coins) return res.status(400).json({ error: "Missing coins" });
     const userCoins = await setUserCoins({ userId: req.user.id, coins });
+    coinDataScraper.updateSelectedCoins();
     return res.status(200).json({ userCoins });
   } catch (error) {
     return res.status(500).json({
