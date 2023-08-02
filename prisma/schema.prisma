@@ -20,14 +20,31 @@ model User {
 model SelectedCoin {
   userId        String
   coinAssetType CoinAssetType
-  user          User          @relation(fields: [userId], references: [id])
-  createdAt     DateTime      @default(now())
+  user          User           @relation(fields: [userId], references: [id])
+  createdAt     DateTime       @default(now())
+  // users can set an upper and a lower limit to be alerted on
+  preference    PreferenceType
+  price         Float
 
-  @@id([userId, coinAssetType])
+  @@id([userId, coinAssetType, preference])
+}
+
+enum PreferenceType {
+  HIGH
+  LOW
 }
 
 model Coin {
-  coin CoinAssetType @id
+  coin           CoinAssetType    @id
+  coinQuotesLogs CoinQuotesLogs[]
+}
+
+model CoinQuotesLogs {
+  id        String        @id @default(cuid())
+  coin      Coin          @relation(fields: [coinId], references: [coin])
+  coinId    CoinAssetType
+  price     Float
+  createdAt DateTime      @default(now())
 }
 
 enum CoinAssetType {

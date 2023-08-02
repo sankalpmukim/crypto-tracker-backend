@@ -1,4 +1,4 @@
-import { CoinAssetType, SelectedCoin } from "@prisma/client";
+import { CoinAssetType, PreferenceType, SelectedCoin } from "@prisma/client";
 import { prisma } from "../initializers/prisma";
 
 export const getAllUsers = async () => {
@@ -23,31 +23,40 @@ export const getUserCoins = async (userId: string): Promise<SelectedCoin[]> => {
   return userCoins;
 };
 
+interface SelectCoinForUsersInput {
+  coin: CoinAssetType;
+  preference: PreferenceType;
+  price: number;
+}
+
 export const setUserCoins = async ({
   userId,
   coins,
 }: {
   userId: string;
-  coins: string[];
+  coins: SelectCoinForUsersInput[];
 }) => {
-  const updated = prisma.user.update({
+  // delete user's selectedCoins
+  await prisma.selectedCoin.deleteMany({
+    where: {
+      userId,
+    },
+  });
+  // create new selectedCoins
+  const updated = await prisma.user.update({
     where: {
       id: userId,
     },
     data: {
       selectedCoins: {
-        deleteMany: {
-          NOT: {
-            coinAssetType: {
-              in: coins as CoinAssetType[],
-            },
-          },
-        },
         createMany: {
-          data: coins.map((coin) => ({
-            coinAssetType: coin as CoinAssetType,
-          })),
           skipDuplicates: true,
+          data: coins.map((coin) => ({
+            userId,
+            coinAssetType: coin.coin,
+            preference: coin.preference,
+            price: coin.price,
+          })),
         },
       },
     },
