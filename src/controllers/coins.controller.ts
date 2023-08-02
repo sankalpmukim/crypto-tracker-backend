@@ -21,36 +21,23 @@ export const selectCoin = ({
   });
 };
 
-export const setUserCoins = async ({
-  userId,
-  coins,
-}: {
-  userId: string;
-  coins: string[];
-}) => {
-  const updated = prisma.user.update({
+export const getUserCoins = async (
+  coin: string
+): Promise<(SelectedCoin & { user: { email: string } })[]> => {
+  const userCoins = await prisma.selectedCoin.findMany({
     where: {
-      id: userId,
+      coinAssetType: coin as CoinAssetType,
     },
-    data: {
-      selectedCoins: {
-        deleteMany: {
-          NOT: {
-            coinAssetType: {
-              in: coins as CoinAssetType[],
-            },
-          },
-        },
-        createMany: {
-          data: coins.map((coin) => ({
-            coinAssetType: coin as CoinAssetType,
-          })),
+    select: {
+      userId: true,
+      coinAssetType: true,
+      user: {
+        select: {
+          email: true,
         },
       },
-    },
-    include: {
-      selectedCoins: true,
+      createdAt: true,
     },
   });
-  return updated;
+  return userCoins;
 };
