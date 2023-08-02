@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../services/jwt.services";
+import { prisma } from "../initializers/prisma";
 
 export const authMiddleware = async (
   req: Request,
@@ -23,6 +24,21 @@ export const authMiddleware = async (
 
     // if token is invalid, return error
     if (typeof tokenPayload === "string") {
+      return res.status(401).json({
+        error: `Please login to continue`,
+        success: false,
+      });
+    }
+
+    // check tokenPayload.id exists in users database
+    const findUser = prisma.user.findUnique({
+      where: {
+        id: tokenPayload.id,
+      },
+    });
+
+    // if user does not exist, return error
+    if (!findUser) {
       return res.status(401).json({
         error: `Please login to continue`,
         success: false,

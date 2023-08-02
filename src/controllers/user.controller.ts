@@ -53,7 +53,6 @@ export const setUserCoins = async ({
         createMany: {
           skipDuplicates: true,
           data: coins.map((coin) => ({
-            userId,
             coinAssetType: coin.coin,
             preference: coin.preference,
             price: coin.price,
