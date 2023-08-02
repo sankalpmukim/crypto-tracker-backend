@@ -1,4 +1,4 @@
-import { CoinAssetType, PreferenceType, SelectedCoin } from "@prisma/client";
+import { CoinAssetType, SelectedCoin } from "@prisma/client";
 import { prisma } from "../initializers/prisma";
 import { coinDataScraper } from "../services/scraper.services";
 
@@ -26,8 +26,8 @@ export const getUserCoins = async (userId: string): Promise<SelectedCoin[]> => {
 
 interface SelectCoinForUsersInput {
   coin: CoinAssetType;
-  preference: PreferenceType;
-  price: number;
+  lowPrice: number;
+  highPrice: number;
 }
 
 export const setUserCoins = async ({
@@ -37,35 +37,48 @@ export const setUserCoins = async ({
   userId: string;
   coins: SelectCoinForUsersInput[];
 }) => {
-  // delete user's selectedCoins
-  await prisma.selectedCoin.deleteMany({
-    where: {
-      userId,
-    },
-  });
-  // create new selectedCoins
-  const updated = await prisma.user.update({
-    where: {
-      id: userId,
-    },
-    data: {
-      selectedCoins: {
-        createMany: {
-          skipDuplicates: true,
-          data: coins.map((coin) => ({
-            coinAssetType: coin.coin,
-            preference: coin.preference,
-            price: coin.price,
-          })),
+  let updated = [];
+
+  for (const coin of coins) {
+    const { lowPrice, highPrice } = coin;
+
+    // Check if the coin already exists for the user
+    const existingCoin = await prisma.selectedCoin.findUnique({
+      where: {
+        userId_coinAssetType: {
+          userId: userId,
+          coinAssetType: coin.coin,
         },
       },
-    },
-    include: {
-      selectedCoins: true,
-    },
-  });
+    });
 
-  await coinDataScraper.updateSelectedCoins();
+    // If coin exists, update it. Else, create a new record.
+    if (existingCoin) {
+      const updatedCoin = await prisma.selectedCoin.update({
+        where: {
+          userId_coinAssetType: {
+            userId: userId,
+            coinAssetType: coin.coin,
+          },
+        },
+        data: {
+          lowPrice,
+          highPrice,
+        },
+      });
+      updated.push(updatedCoin);
+    } else {
+      const newCoin = await prisma.selectedCoin.create({
+        data: {
+          userId: userId,
+          coinAssetType: coin.coin,
+          lowPrice,
+          highPrice,
+        },
+      });
+      updated.push(newCoin);
+    }
+  }
 
   return updated;
 };

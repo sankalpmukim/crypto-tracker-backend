@@ -1,10 +1,4 @@
-import {
-  CoinAssetType,
-  Coin,
-  SelectedCoin,
-  Prisma,
-  PreferenceType,
-} from "@prisma/client";
+import { CoinAssetType, Coin, SelectedCoin, Prisma } from "@prisma/client";
 import { prisma } from "../initializers/prisma";
 import { coinDataScraper } from "../services/scraper.services";
 
@@ -13,7 +7,7 @@ export const getCoins = async (): Promise<Coin[]> => {
   return coins;
 };
 
-export const getCurrentlySelectedCoins = async () => {
+export const getAllCurrentlySelectedCoins = async () => {
   const selectedCoins = await prisma.selectedCoin.findMany({
     select: {
       coinAssetType: true,
@@ -21,31 +15,6 @@ export const getCurrentlySelectedCoins = async () => {
     distinct: ["coinAssetType"],
   });
   return selectedCoins;
-};
-
-export const selectCoin = async ({
-  userId,
-  coin,
-  preference,
-  price,
-}: {
-  userId: string;
-  coin: string;
-  preference: PreferenceType;
-  price: number;
-}): Promise<SelectedCoin> => {
-  const newSelectedCoin = await prisma.selectedCoin.create({
-    data: {
-      userId,
-      coinAssetType: coin as CoinAssetType,
-      preference,
-      price,
-    },
-  });
-
-  await coinDataScraper.updateSelectedCoins();
-
-  return newSelectedCoin;
 };
 
 export const getCoinUsers = async (
@@ -58,14 +27,14 @@ export const getCoinUsers = async (
     select: {
       userId: true,
       coinAssetType: true,
-      preference: true,
-      price: true,
       createdAt: true,
       user: {
         select: {
           email: true,
         },
       },
+      lowPrice: true,
+      highPrice: true,
     },
   });
   return userCoins;

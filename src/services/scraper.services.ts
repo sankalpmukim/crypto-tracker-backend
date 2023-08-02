@@ -1,5 +1,5 @@
 import { CoinAssetType } from "@prisma/client";
-import { getCurrentlySelectedCoins } from "../controllers/coins.controller";
+import { getAllCurrentlySelectedCoins } from "../controllers/coins.controller";
 import fetch from "node-fetch";
 import queueClient from "./queue.services";
 import { prisma } from "../initializers/prisma";
@@ -34,7 +34,7 @@ class CoinDataScraper {
   async updateSelectedCoins() {
     if (this.coinsUpdating) return;
     this.coinsUpdating = false;
-    const distinctSelectedCoins = await getCurrentlySelectedCoins();
+    const distinctSelectedCoins = await getAllCurrentlySelectedCoins();
     this.coins = distinctSelectedCoins.map((coin) => coin.coinAssetType);
     this.coinsUpdating = true;
     this.coinsUpdated = true;
