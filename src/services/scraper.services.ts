@@ -16,6 +16,10 @@ interface CoinAPIData {
   error?: string;
 }
 
+/**
+ * Live config option can be dynamically updated externally by admins
+ * @returns true if should scrape, false if not
+ */
 async function shouldScrape(): Promise<boolean> {
   return (await prisma.liveConfig.findFirst())?.shouldScrape ?? false;
 }
@@ -31,10 +35,10 @@ class CoinDataScraper {
   }
   async updateSelectedCoins() {
     if (this.coinsUpdating) return;
-    this.coinsUpdating = false;
+    this.coinsUpdating = true;
     const distinctSelectedCoins = await getAllCurrentlySelectedCoins();
     this.coins = distinctSelectedCoins.map((coin) => coin.coinAssetType);
-    this.coinsUpdating = true;
+    this.coinsUpdating = false;
     this.coinsUpdated = true;
   }
   async scrape() {
