@@ -28,7 +28,7 @@ model SelectedCoin {
   @@id([userId, coinAssetType])
 }
 
-enum PreferenceType {
+enum EmailPurpose {
   HIGH
   LOW
 }
@@ -48,6 +48,14 @@ model CoinQuotesLogs {
 
 model LiveConfig {
   shouldScrape Boolean @id @default(false)
+}
+
+model EmailSent {
+  id        String        @id @default(cuid())
+  email     String
+  createdAt DateTime      @default(now())
+  coinAsset CoinAssetType
+  purpose   EmailPurpose
 }
 
 enum CoinAssetType {
